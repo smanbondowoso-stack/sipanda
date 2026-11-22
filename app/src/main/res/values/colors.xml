@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="sipanda_navy">#1B3A6B</color>
+    <color name="sipanda_gold">#E8B22E</color>
+    <color name="sipanda_green">#1E8A4A</color>
+    <color name="white">#FFFFFF</color>
+    <color name="text_secondary">#5F6B7A</color>
+</resources>
