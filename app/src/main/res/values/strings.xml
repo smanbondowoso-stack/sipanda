@@ -10,5 +10,6 @@
     <string name="retry">Coba Lagi</string>
     <string name="press_again_to_exit">Tekan sekali lagi untuk keluar</string>
     <string name="no_file_picker">Tidak ada aplikasi untuk memilih berkas</string>
+    <string name="camera_permission_denied">Izin kamera ditolak. Aktifkan lewat Pengaturan &gt; Aplikasi &gt; SIPANDA &gt; Izin.</string>
     <string name="no_app_for_link">Tidak ada aplikasi untuk membuka tautan ini</string>
 </resources>

@@ -1,14 +1,17 @@
 package com.smada.sipanda;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.view.View;
 import android.webkit.CookieManager;
+import android.webkit.PermissionRequest;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceError;
@@ -22,6 +25,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 /**
  * SIPANDA - Sistem Informasi Pemantauan Ibadah SMADA.
@@ -47,6 +51,20 @@ public class MainActivity extends AppCompatActivity {
                         result.getResultCode(), result.getData());
                 filePathCallback.onReceiveValue(uris);
                 filePathCallback = null;
+            });
+
+    private PermissionRequest pendingPermissionRequest;
+    private final ActivityResultLauncher<String> cameraPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
+                PermissionRequest req = pendingPermissionRequest;
+                pendingPermissionRequest = null;
+                if (req == null) return;
+                if (granted) {
+                    req.grant(new String[]{PermissionRequest.RESOURCE_VIDEO_CAPTURE});
+                } else {
+                    req.deny();
+                    Toast.makeText(this, R.string.camera_permission_denied, Toast.LENGTH_LONG).show();
+                }
             });
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -172,6 +190,37 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private class AppChromeClient extends WebChromeClient {
+        @Override
+        public void onPermissionRequest(final PermissionRequest request) {
+            // Hanya izinkan kamera untuk halaman milik Google (Apps Script)
+            if (!isInternalHost(request.getOrigin())) {
+                request.deny();
+                return;
+            }
+            runOnUiThread(() -> {
+                boolean mintaKamera = false;
+                for (String r : request.getResources()) {
+                    if (PermissionRequest.RESOURCE_VIDEO_CAPTURE.equals(r)) mintaKamera = true;
+                }
+                if (!mintaKamera) {
+                    request.deny();
+                    return;
+                }
+                if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA)
+                        == PackageManager.PERMISSION_GRANTED) {
+                    request.grant(new String[]{PermissionRequest.RESOURCE_VIDEO_CAPTURE});
+                } else {
+                    pendingPermissionRequest = request;
+                    cameraPermissionLauncher.launch(Manifest.permission.CAMERA);
+                }
+            });
+        }
+
+        @Override
+        public void onPermissionRequestCanceled(PermissionRequest request) {
+            if (pendingPermissionRequest == request) pendingPermissionRequest = null;
+        }
+
         @Override
         public boolean onShowFileChooser(WebView view, ValueCallback<Uri[]> callback,
                                          FileChooserParams params) {
