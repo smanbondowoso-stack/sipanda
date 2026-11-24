@@ -16,6 +16,11 @@
         android:usesCleartextTraffic="false"
         android:theme="@style/Theme.Sipanda">
 
+        <!-- Unduh modul pemindai QR saat instalasi agar scan pertama langsung siap -->
+        <meta-data
+            android:name="com.google.mlkit.vision.DEPENDENCIES"
+            android:value="barcode_ui" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
