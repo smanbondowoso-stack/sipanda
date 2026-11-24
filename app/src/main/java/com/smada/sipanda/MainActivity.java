@@ -103,6 +103,10 @@ public class MainActivity extends AppCompatActivity {
         cm.setAcceptCookie(true);
         cm.setAcceptThirdPartyCookies(webView, true);
 
+        // Pemindai QR native: halaman SIPANDA memakai window.SipandaNative bila tersedia
+        // (kamera langsung di iframe Apps Script selalu diblokir oleh browser).
+        webView.addJavascriptInterface(new SipandaBridge(this), "SipandaNative");
+
         webView.setWebViewClient(new AppWebViewClient());
         webView.setWebChromeClient(new AppChromeClient());
         webView.setDownloadListener((url, userAgent, contentDisposition, mimeType, contentLength) ->
